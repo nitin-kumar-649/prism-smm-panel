@@ -1,0 +1,13 @@
+.env
+vendor/
+storage/logs/*.log
+storage/cache/*
+storage/sessions/*
+public/uploads/*
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+node_modules/
+.idea/
+.vscode/
