@@ -93,14 +93,34 @@ All API requests use `POST` to `/api/v2` with JSON body:
 
 ## Deployment
 
-Build for production:
+### Hostinger Node.js Hosting
+
+1. **Connect GitHub repo** in Hostinger dashboard → Websites → Node.js
+2. **Set Entry point** to: `server.js`
+3. **Set environment variables** in Hostinger:
+   ```
+   NODE_ENV=production
+   DATABASE_URL=file:./prisma/dev.db
+   JWT_SECRET=your-secret-key-here
+   ```
+4. **Build command** (runs automatically): `npm run build`
+5. **Initialize database** (run once via Hostinger terminal):
+   ```bash
+   npx prisma migrate deploy
+   npx tsx prisma/seed.ts
+   ```
+6. **Restart** the Node.js app from Hostinger dashboard
+
+The `output: 'standalone'` config in `next.config.ts` produces a self-contained server at `.next/standalone/` that includes only the necessary files. The build script automatically copies `public/` and `.next/static/` into the standalone folder.
+
+### Other Platforms
 
 ```bash
 npm run build
 npm start
 ```
 
-Compatible with Hostinger, Vercel, Netlify, and any Node.js hosting.
+Compatible with Vercel, Netlify, Railway, and any Node.js hosting.
 
 ## License
 

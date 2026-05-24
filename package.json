@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "build": "npx prisma generate && next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && cp -r prisma .next/standalone/",
+    "start": "node server.js",
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -20,7 +21,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "tsx": "^4.22.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -32,7 +34,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "tsx": "^4.22.3",
     "typescript": "^5"
   }
 }
