@@ -1,0 +1,6 @@
+DirectoryIndex disabled
+
+RewriteEngine On
+
+# Proxy all requests to Node.js app
+RewriteRule ^(.*)$ http://127.0.0.1:%{ENV:PORT}/$1 [P,L]

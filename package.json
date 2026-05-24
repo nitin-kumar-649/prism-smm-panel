@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "build": "npx prisma generate && next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && cp -r prisma .next/standalone/",
+    "start": "node server.js",
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
