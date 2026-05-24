@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  password      String
+  role          String    @default("user")
+  status        String    @default("active")
+  balance       Float     @default(0)
+  totalSpent    Float     @default(0) @map("total_spent")
+  phone         String?
+  apiKey        String?   @unique @map("api_key")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  orders        Order[]
+  transactions  Transaction[]
+  tickets       Ticket[]
+  ticketMessages TicketMessage[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String?
+  sortOrder   Int       @default(0) @map("sort_order")
+  status      String    @default("active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  services    Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id           Int       @id @default(autoincrement())
+  categoryId   Int       @map("category_id")
+  name         String
+  description  String?
+  type         String    @default("default")
+  pricePer1000 Float     @map("price_per_1000")
+  minQuantity  Int       @map("min_quantity")
+  maxQuantity  Int       @map("max_quantity")
+  dripFeed     Boolean   @default(false) @map("drip_feed")
+  refill       Boolean   @default(false)
+  cancel       Boolean   @default(false)
+  status       String    @default("active")
+  sortOrder    Int       @default(0) @map("sort_order")
+  providerId   Int?      @map("provider_id")
+  providerServiceId String? @map("provider_service_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  category     Category  @relation(fields: [categoryId], references: [id])
+  provider     Provider? @relation(fields: [providerId], references: [id])
+  orders       Order[]
+
+  @@map("services")
+}
+
+model Provider {
+  id        Int       @id @default(autoincrement())
+  name      String
+  url       String
+  apiKey    String    @map("api_key")
+  status    String    @default("active")
+  balance   Float     @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  services  Service[]
+
+  @@map("providers")
+}
+
+model Order {
+  id              Int       @id @default(autoincrement())
+  orderId         String    @unique @map("order_id")
+  userId          Int       @map("user_id")
+  serviceId       Int       @map("service_id")
+  link            String
+  quantity         Int
+  charge          Float
+  startCount      Int?      @map("start_count")
+  remains         Int?
+  status          String    @default("pending")
+  providerOrderId String?   @map("provider_order_id")
+  dripFeed        Boolean   @default(false) @map("drip_feed")
+  dripFeedInterval Int?     @map("drip_feed_interval")
+  dripFeedQuantity Int?     @map("drip_feed_quantity")
+  dripFeedRuns    Int?      @map("drip_feed_runs")
+  refill          Boolean   @default(false)
+  cancel          Boolean   @default(false)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user            User      @relation(fields: [userId], references: [id])
+  service         Service   @relation(fields: [serviceId], references: [id])
+
+  @@map("orders")
+}
+
+model Transaction {
+  id           Int       @id @default(autoincrement())
+  transactionId String   @unique @map("transaction_id")
+  userId       Int       @map("user_id")
+  type         String
+  amount       Float
+  balanceAfter Float     @map("balance_after")
+  description  String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user         User      @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
+}
+
+model PaymentRequest {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  amount      Float
+  gateway     String
+  status      String    @default("pending")
+  transactionRef String? @map("transaction_ref")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("payment_requests")
+}
+
+model Ticket {
+  id        Int       @id @default(autoincrement())
+  ticketId  String    @unique @map("ticket_id")
+  userId    Int       @map("user_id")
+  subject   String
+  priority  String    @default("medium")
+  status    String    @default("open")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  user      User      @relation(fields: [userId], references: [id])
+  messages  TicketMessage[]
+
+  @@map("tickets")
+}
+
+model TicketMessage {
+  id        Int       @id @default(autoincrement())
+  ticketId  Int       @map("ticket_id")
+  userId    Int       @map("user_id")
+  message   String
+  isAdmin   Boolean   @default(false) @map("is_admin")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  ticket    Ticket    @relation(fields: [ticketId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("ticket_messages")
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  title     String
+  message   String
+  type      String    @default("info")
+  read      Boolean   @default(false)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model Setting {
+  id        Int       @id @default(autoincrement())
+  key       String    @unique @map("key_name")
+  value     String
+  group     String    @default("general") @map("group_name")
+
+  @@map("settings")
+}
+
+model Page {
+  id              Int       @id @default(autoincrement())
+  title           String
+  slug            String    @unique
+  content         String
+  metaTitle       String?   @map("meta_title")
+  metaDescription String?   @map("meta_description")
+  status          String    @default("active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@map("pages")
+}
