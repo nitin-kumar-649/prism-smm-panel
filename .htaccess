@@ -2,5 +2,14 @@ DirectoryIndex disabled
 
 RewriteEngine On
 
-# Proxy all requests to Node.js app
-RewriteRule ^(.*)$ http://127.0.0.1:%{ENV:PORT}/$1 [P,L]
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Let Passenger/Node.js handle all requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /server.js [L]
+
+PassengerAppType node
+PassengerStartupFile server.js
